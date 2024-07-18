@@ -1,0 +1,29 @@
+name: ansible deployment in AWS
+on:
+  push:
+    branches:
+      main
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Clone our repository
+        uses: actions/checkout@v3
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::452249825174:role/github-actions-oidc
+          aws-region: eu-central-1
+          role-session-name: GithubVPCDeploy
+      - name: Terraform Set up
+        uses: hashicorp/setup-terraform@v1
+      - name: Terrafrom Initialization
+        run: terraform init
+      - name: Terrafrom Planning
+        run: terraform plan 
+      - name: Terrafrom Applying 
+        run: terraform apply -auto-approve
