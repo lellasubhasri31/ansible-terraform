@@ -1,0 +1,54 @@
+---
+- name: Deploy React Application
+  hosts: asg_instances
+  become: true
+
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+
+  - name: Install build tools (replace with your needs)
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - npm  
+        - nodejs 
+
+  - name: Create destination directory
+    file:
+      path: /var/www
+      state: directory
+      mode: 0755
+
+  - name: Copy React build files
+    copy:
+      src: hello.js  
+      dest: /var/www/html
+      force: yes
+    notify: Restart Nginx
+
+  - name: Install Nginx  
+    apt:
+      name: nginx
+      state: present
+
+  handlers:
+  - name: Restart Nginx
+    service:
+      name: nginx
+      state: restarted
+
+  - name: Configure Nginx for React app
+    template:
+      src: nginx.conf.j2 
+      dest: /etc/nginx/sites-available/hello-world.conf
+      mode: 0644
+    notify: Reload Nginx
+
+  - name: Enable and reload Nginx configuration
+    systemd:
+      name: nginx
+      state: reloaded
+    notify: Restart Nginx  

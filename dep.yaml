@@ -1,0 +1,26 @@
+---
+- name: Deploy React Application
+  hosts: asg_instances
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy React build files
+      copy:
+        src: hello.js
+        dest: /var/www/html
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

@@ -1,0 +1,19 @@
+server {
+  listen 80; 
+
+  
+  access_log /var/log/nginx/hello-world.access.log combined;
+
+  
+  location / {
+    root /var/www/html;
+     hello.js;
+    try_files $uri $uri/ /hello.js;
+  }
+
+  
+  error_page 404 /404.js;
+  location /404 {
+    root /var/www/html;
+  }
+}
